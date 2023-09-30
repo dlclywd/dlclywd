@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        
+        .score {
+            width: 500px;
+            margin: 50px auto 0;
+            font-size: 40px;
+            font-weight: 700;
+        }
+        
+        .main {
+            width: 500px;
+            height: 500px;
+            margin: auto;
+            background-color: #bbada0;
+            border-radius: 10px;
+        }
+        
+        .main>div {
+            width: 100px;
+            height: 100px;
+            margin: 20px 0 0 20px;
+            background-color: #cdc1b4;
+            float: left;
+            border-radius: 5px;
+            font-size: 40px;
+            font-weight: 700;
+            text-align: center;
+            line-height: 100px;
+            color: #fff;
+        }
+        
+        .zhe {
+            width: 500px;
+            height: 300px;
+            position: absolute;
+            top: 102px;
+            left: 50%;
+            margin-left: -250px;
+            z-index: 3;
+            background: rgba(200, 200, 200, 0.5);
+            text-align: center;
+            font-size: 48px;
+            font-weight: 700;
+            color: #776e65;
+            border-radius: 10px;
+            padding-top: 200px;
+            display: none;
+        }
+        
+        .zhe input {
+            margin-top: -480px;
+            width: 120px;
+            height: 40px;
+            background: #8f7a66;
+            border-radius: 5px;
+            border: none;
+            color: white;
+            font-size: 20px;
+        }
+        
+        .main>.n2 {
+            background: #eee4da;
+            color: #776e65;
+        }
+        
+        .main>.n4 {
+            background: #ede0c8;
+            color: #776e65;
+        }
+        
+        .main>.n8 {
+            background: #f2b179;
+            color: #f9f6f2;
+        }
+        
+        .main>.n16 {
+            background: #f59563;
+            color: #f9f0cd;
+        }
+        
+        .main>.n32 {
+            background: #f67c5f;
+            color: #f9f6ef;
+        }
+        
+        .main>.n64 {
+            background: #f65e3b;
+            color: #f9f6f2;
+        }
+        
+        .main>.n128 {
+            background: #edcf72;
+            color: #f6ebd5;
+            font-size: 36px;
+        }
+        
+        .main>.n256 {
+            background: #edcc61;
+            color: #f9f6f2;
+            font-size: 36px;
+        }
+        
+        .main>.n512 {
+            background: #edc850;
+            color: #f9f6f2;
+            font-size: 36px;
+        }
+        
+        .main>.n1024 {
+            background: #edc53f;
+            color: #f7f6f2;
+            font-size: 30px;
+        }
+        
+        .main>.n2048 {
+            background: #edc22e;
+            color: #f9f6f2;
+            font-size: 30px;
+        }
+        
+        .main>.n4096 {
+            background: #a6c;
+            color: #f9f6f2;
+            font-size: 30px;
+        }
+        
+        .main>.n8192 {
+            background: #93c;
+            color: #f9f6f2;
+            font-size: 30px;
+        }
+    </style>
+</head>
+
+<body>
+    <p class="score">SCORE:<span id="score01">0</span></p>
+    <div class="main">
+        <!-- 第一行 -->
+        <div id="c00"></div>
+        <div id="c01"></div>
+        <div id="c02"></div>
+        <div id="c03"></div>
+        <!-- 第二行 -->
+        <div id="c10"></div>
+        <div id="c11"></div>
+        <div id="c12"></div>
+        <div id="c13"></div>
+        <!-- 第三行 -->
+        <div id="c20"></div>
+        <div id="c21"></div>
+        <div id="c22"></div>
+        <div id="c23"></div>
+        <!-- 第四行 -->
+        <div id="c30"></div>
+        <div id="c31"></div>
+        <div id="c32"></div>
+        <div id="c33"></div>
+    </div>
+    <!-- 遮罩层 -->
+
+    <div class="zhe">
+        <p>Game over!</p>
+        SCORE: <span id="score02">0</span> <br>
+        <input type="button" value="再试一次" onclick="zai()">
+    </div>
+    <script>
+        var game = {
+            data: [],
+            score: 0, //分数
+            status: 0, //是否结束
+            gameover: 0,
+            gamerunning: 1,
+
+            // 开始
+            start: function() {
+                this.score = 0;
+                this.data = [//这里咱们用一个数组来形容网格
+                    [0, 0, 0, 0],
+                    [0, 0, 0, 0],
+                    [0, 0, 0, 0],
+                    [0, 0, 0, 0]
+                ]
+
+                this.status = this.gamerunning;
+                this.randomNum()
+                this.randomNum()
+                this.dataView()
+            },
+            // 随机数
+            randomNum: function() {
+                for (;;) {//创建一个死循环
+                    var r = Math.floor(Math.random() * 4);
+                    var c = Math.floor(Math.random() * 4);
+                    if (this.data[r][c] == 0) {//满足随机坐标值为0退出死循环
+                        var num = Math.random() > 0.2 ? 2 : 4;//在数组表格内随机生成一个2||4
+                        this.data[r][c] = num;
+                        break;
+                    }
+                }
+            },
+            // 更新表格样式
+            dataView: function() {
+                for (var r = 0; r < 4; r++) {
+                    for (var c = 0; c < 4; c++) {
+                        var div = document.getElementById("c" + r + c);
+                        if (this.data[r][c] != 0) {
+                            div.innerHTML = this.data[r][c];
+                            div.className = "n" + this.data[r][c]//通过更改class方法更新方块样式
+                        } else {
+                            div.innerHTML = ""
+                            div.className = ""
+                        }
+                    }
+                }
+                document.getElementById("score01").innerHTML = this.score; //设置分数
+                // 监听状态
+                if (this.status == this.gameover) {//死了之后的遮罩层状态
+                    document.getElementById("score02").innerHTML = this.score;
+                    document.getElementsByClassName("zhe")[0].style.display = "block"
+                } else {
+                    document.getElementsByClassName("zhe")[0].style.display = "none"
+                }
+            },
+            // 判断死了没有
+            isgameover: function() {
+                for (var r = 0; r < 4; r++) {
+                    for (var c = 0; c < 4; c++) {
+                        // 没有结束的三种状态
+                        //1、还有网格值为0
+                        if (this.data[r][c] == 0) {
+                            return false
+                        }
+                        if (c < 3) {//上下有相同的数
+                            if (this.data[r][c] == this.data[r][c + 1]) {
+                                return false
+                            }
+                        }
+                        if (r < 3) {//左右有相同的数
+                            if (this.data[r][c] == this.data[r + 1][c]) {
+                                return false
+                            }
+                        }
+                    }
+                }
+                return true;
+            },
+            // 左移动
+            moveLeft: function() {
+                var before = String(this.data) //移动之前
+                for (var r = 0; r < 4; r++) {
+                    this.moveLeftInRow(r);
+                }
+                var after = String(this.data) //移动之后
+                if (before != after) {
+                    this.randomNum()
+                    if (this.isgameover()) {
+                        this.status = this.gameover;
+
+                    }
+                    this.dataView()
+                }
+            },
+            moveLeftInRow: function(r) { //单独处理每一行的逻辑
+                for (var c = 0; c < 3; c++) {
+                    var nextc = this.getNextInRow(r, c);
+                    if (nextc != -1) {
+                        if (this.data[r][c] == 0) {//当前格为0
+                            this.data[r][c] = this.data[r][nextc];//后面不为0的替换
+                            this.data[r][nextc] = 0;
+                            c--;
+                        } else if (this.data[r][c] == this.data[r][nextc]) {//当前格不为0、后面格值相同
+                            this.data[r][c] *= 2;//当前格值*2
+                            this.score += this.data[r][c]//分数加上去
+                            this.data[r][nextc] = 0//后面格清0
+                        }
+                    } else {
+                        break;
+                    }
+                }
+            },
+            getNextInRow: function(r, c) {
+                for (var i = c + 1; i < 4; i++) {
+                    if (this.data[r][i] != 0) {//判断当前格后面的值是否为0
+                        return i//不为0返回格
+                    }
+                }
+                return -1;
+            },
+            // 右移动
+            moveRight: function() {
+                var before = String(this.data) //移动之前
+                for (var r = 3; r >= 0; r--) {
+                    this.moveRightInRow(r);
+                }
+                var after = String(this.data) //移动之后
+                if (before != after) {
+                    this.randomNum()
+                    if (this.isgameover()) {
+                        this.status = this.gameover;
+
+                    }
+                    this.dataView()
+                }
+            },
+            moveRightInRow: function(r) { //单独处理每一行的逻辑
+                for (var c = 3; c >= 0; c--) {
+                    var nextc = this.getNextInRowa(r, c);
+                    if (nextc != -1) {
+                        if (this.data[r][c] == 0) {
+                            this.data[r][c] = this.data[r][nextc];
+                            this.data[r][nextc] = 0;
+                            c++;
+                        } else if (this.data[r][c] == this.data[r][nextc]) {
+                            this.data[r][c] *= 2;
+                            this.score += this.data[r][c]
+                            this.data[r][nextc] = 0
+                        }
+                    } else {
+                        break;
+                    }
+                }
+            },
+            getNextInRowa: function(r, c) {
+                for (var i = c - 1; i >= 0; i--) {
+                    if (this.data[r][i] != 0) {
+                        return i
+                    }
+                }
+                return -1;
+            },
+            // 上移动
+            moveTop: function() {
+                var before = String(this.data) //移动之前
+                for (var c = 0; c < 4; c++) {
+                    this.moveTopInRow(c);
+                }
+                var after = String(this.data) //移动之后
+                if (before != after) {
+                    this.randomNum()
+                    if (this.isgameover()) {
+                        this.status = this.gameover;
+
+                    }
+                    this.dataView()
+                }
+            },
+            moveTopInRow: function(c) { //单独处理每一列的逻辑
+                for (var r = 0; r < 3; r++) {
+                    var nextr = this.getNextInRowaa(r, c);
+                    if (nextr != -1) {
+                        if (this.data[r][c] == 0) {
+                            this.data[r][c] = this.data[nextr][c];
+                            this.data[nextr][c] = 0;
+                            r--;
+                        } else if (this.data[r][c] == this.data[nextr][c]) {
+                            this.data[r][c] *= 2;
+                            this.score += this.data[r][c]
+                            this.data[nextr][c] = 0
+                        }
+                    } else {
+                        break;
+                    }
+                }
+            },
+            getNextInRowaa: function(r, c) {
+                for (var i = r + 1; i < 4; i++) {
+                    if (this.data[i][c] != 0) {
+                        return i
+                    }
+                }
+                return -1;
+            },
+            // 下移动
+            moveButtom: function() {
+                var before = String(this.data) //移动之前
+                for (var c = 3; c >= 0; c--) {
+                    this.moveButtomInRow(c);
+                }
+                var after = String(this.data) //移动之后
+                if (before != after) {
+                    this.randomNum()
+                    if (this.isgameover()) {
+                        this.status = this.gameover;
+
+                    }
+                    this.dataView()
+                }
+            },
+            moveButtomInRow: function(c) { //单独处理每一列的逻辑
+                for (var r = 3; r >= 0; r--) {
+                    var nextr = this.getNextInRowaaa(r, c);
+                    if (nextr != -1) {
+                        if (this.data[r][c] == 0) {
+                            this.data[r][c] = this.data[nextr][c];
+                            this.data[nextr][c] = 0;
+                            r++;
+                        } else if (this.data[r][c] == this.data[nextr][c]) {
+                            this.data[r][c] *= 2;
+                            this.score += this.data[r][c]
+                            this.data[nextr][c] = 0
+                        }
+                    } else {
+                        break;
+                    }
+                }
+            },
+            getNextInRowaaa: function(r, c) {
+                for (var i = r - 1; i >= 0; i--) {
+                    if (this.data[i][c] != 0) {
+                        return i
+                    }
+                }
+                return -1;
+            },
+
+
+
+        }
+
+        game.start()
+
+        document.onkeydown = function(e) {
+            if (e.keyCode == 37) {
+                game.moveLeft()
+            }
+            if (e.keyCode == 39) {
+                game.moveRight()
+            }
+            if (e.keyCode == 38) {
+                game.moveTop()
+            }
+            if (e.keyCode == 40) {
+                game.moveButtom()
+            }
+        }
+        zai = function() {
+            game.start()
+
+        }
+    </script>
+</body>
+
+</html>
